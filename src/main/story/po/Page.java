@@ -10,7 +10,6 @@ public class Page {
 	private int page;
 	private boolean current = false;
 	private boolean hide = false;
-	private boolean showEllipsis = false;
 
 	public int getPage() {
 		return page;
@@ -34,13 +33,5 @@ public class Page {
 
 	public void setHide(boolean hide) {
 		this.hide = hide;
-	}
-
-	public boolean isShowEllipsis() {
-		return showEllipsis;
-	}
-
-	public void setShowEllipsis(boolean showEllipsis) {
-		this.showEllipsis = showEllipsis;
 	}
 }

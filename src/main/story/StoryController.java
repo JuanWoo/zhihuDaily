@@ -51,8 +51,6 @@ public class StoryController extends Controller {
 			page.setPage(i);
 			if (i == currentPage) page.setCurrent(true);
 			if (Math.abs(currentPage - i) > 5) page.setHide(true);
-			//if (i != 1 && i != pageNum && Math.abs(currentPage - i) > 3) page.setHide(true);
-			//if (page.isHide() && Math.abs(currentPage - i) <= 6) page.setShowEllipsis(true);
 			pages.add(page);
 		}
 
