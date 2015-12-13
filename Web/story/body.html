@@ -1,0 +1,40 @@
+<#include "header.html">
+
+<div class="container-inner">
+	<br>
+	<#list news as news>
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<span>${news.date}</span>
+		</div>
+		<#list news.stories as s>
+		<a class="list-group-item" href="http://daily.zhihu.com/story/${s.id}" target="_blank">
+			<span style="display:none;" class="thumbnail">
+				<img name="image" id="${s.id}" date="${s.date}" src="${s.image}" alt="" />
+			</span>
+			${s.title}
+		</a>
+		</#list>
+	</div>
+	</#list>
+	
+	<nav class="nav-page">
+		<ul class="pagination">
+		<#list pages as p>
+			<#if p.page=1 && !p.isCurrent()>
+				<li><a href="/" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+			</#if>
+			<#if !p.isHide() && p.isCurrent()>
+				<li class="active"><span>${p.page}</span></li>
+			<#elseif !p.isHide()>
+				<li><a href="/${p.page}">${p.page}</a></li>
+			</#if>
+			<#if p.page=pages?size && !p.isCurrent()>
+				<li><a href="/${pages?size}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+			</#if>
+		</#list>
+		</ul>
+	</nav>
+</div>
+
+<#include "footer.html">
