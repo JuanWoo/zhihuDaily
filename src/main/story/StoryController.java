@@ -36,8 +36,8 @@ public class StoryController extends Controller {
 			newsList.addAll(service.addTodayNews(today));
 		}
 
-		Date firstDay = DateUtils.parse("20151201");
-		int pageNum = (int) Math.round((int) (today.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000) / eachPage + 0.5);
+		Date firstDay = DateUtils.parse("20130519");
+		int pageNum = (int) ((today.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000) / eachPage + 1);
 		currentPage = Math.min(currentPage, pageNum);
 		for (Date d = DateUtils.addDay(today, -(currentPage - 1) * eachPage + 1); d.after(firstDay); d = DateUtils.addDay(d, -1)) {
 			if (d.after(today)) continue;

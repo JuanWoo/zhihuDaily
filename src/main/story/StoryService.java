@@ -62,6 +62,7 @@ public class StoryService {
 	private List<Story> getStories(String jsonStr) throws IOException, JSONException, ParseException {
 		List<Story> stories = new ArrayList<Story>();
 		JSONObject jsonobj = new JSONObject(jsonStr);
+		if (jsonobj.length() == 0) return stories;
 		Date date = DateUtils.parse(jsonobj.getString("date"));
 		JSONArray storyArr = jsonobj.getJSONArray("stories");
 		Story story = null;
