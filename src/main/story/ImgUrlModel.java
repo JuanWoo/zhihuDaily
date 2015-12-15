@@ -8,9 +8,10 @@ tableName: img_url
 +-----------+-------------------+-------+-------+-----------+-------+
 | Field		| Type				| Null	| Key	| Default	| Extra	|
 +-----------+-------------------+-------+-----+-------------+-------+
-| id		| decimal(10,0)		| NO	| PRI	| NULL		|		|
-| url		| varchar2(500)		| NO	|		| NULL		|		|
-| img_date	| date				| NO	|		| NULL		|		|
+| id		| decimal(20,0)		| NO	| PRI	| NULL		|		|
+| type		| decimal(2,0)		| YES	|		| 0 		|		|
+| url		| varchar2(500)		| YES	|		| ''		|		|
+| img_date	| date				| YES	|		| NULL		|		|
 +-----------+-------------------+-------+-------+-----------+-------+
  * @desc	
  * @author	JuanWoo
@@ -18,4 +19,6 @@ tableName: img_url
  **/
 
 @SuppressWarnings("serial")
-public class ImgUrlModel extends Model<ImgUrlModel>{}
+public class ImgUrlModel extends Model<ImgUrlModel>{
+	public static final ImgUrlModel dao = new ImgUrlModel();
+}

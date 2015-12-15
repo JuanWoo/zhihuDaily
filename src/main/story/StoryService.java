@@ -18,7 +18,9 @@ import java.util.Date;
 import java.util.List;
 
 import main.common.DateUtils;
+import main.story.po.Body;
 import main.story.po.OneDayNews;
+import main.story.po.Page;
 import main.story.po.Story;
 
 import org.json.JSONArray;
@@ -35,8 +37,45 @@ public class StoryService {
 	private final static String URL_LATEST = "http://news-at.zhihu.com/api/4/news/latest";
 	private final static String URL_BEFORE = "http://news.at.zhihu.com/api/4/news/before/";
 	private final static String URL_NEWS = "http://news-at.zhihu.com/api/4/news/";
+	private final static String URL_THEMES = "http://news-at.zhihu.com/api/4/themes";
+	private final static String URL_THEME = "http://news-at.zhihu.com/api/4/theme/";
+	private final Date birthday = DateUtils.getDate(2013, 4, 19);// 知乎日报的生日20130519
+	private final int eachPage = 3;
 
-	public List<OneDayNews> addTodayNews(Date today) throws IOException, JSONException, ParseException {
+	public Body renderBody(int currentPage) throws ParseException, IOException {
+		Date today = DateUtils.parse(DateUtils.format(new Date()));
+		int pageNum = (int) ((today.getTime() - birthday.getTime()) / (24 * 60 * 60 * 1000) / eachPage + 1);
+		currentPage = Math.min(currentPage, pageNum);
+		List<OneDayNews> newsList = new ArrayList<OneDayNews>();
+		if (currentPage == 1) {
+			newsList.addAll(getTodayNews(today));
+		}
+
+		for (Date d = DateUtils.addDay(today, -(currentPage - 1) * eachPage + 1); d.after(birthday); d = DateUtils.addDay(d, -1)) {
+			if (d.after(today)) continue;
+			if (newsList.size() > eachPage - 1) break;
+			newsList.addAll(getBeforeNews(d));
+		}
+
+		Body body = new Body();
+		body.setNewsList(newsList);
+		body.setPages(getPages(currentPage, pageNum));
+		return body;
+	}
+
+	private List<Page> getPages(int currentPage, int pageNum) {
+		List<Page> pages = new ArrayList<Page>();
+		for (int i = 1; i <= pageNum; i++) {
+			Page page = new Page();
+			page.setPage(i);
+			if (i == currentPage) page.setCurrent(true);
+			if (Math.abs(currentPage - i) > 5) page.setHide(true);
+			pages.add(page);
+		}
+		return pages;
+	}
+
+	private List<OneDayNews> getTodayNews(Date today) throws IOException, JSONException, ParseException {
 		List<OneDayNews> newsList = new ArrayList<OneDayNews>();
 		OneDayNews oneDay = new OneDayNews();
 		String jsonToday = getJson(URL_LATEST);
@@ -48,7 +87,7 @@ public class StoryService {
 		return newsList;
 	}
 
-	public List<OneDayNews> addBeforeNews(Date d) throws IOException, JSONException, ParseException {
+	private List<OneDayNews> getBeforeNews(Date d) throws IOException, JSONException, ParseException {
 		List<OneDayNews> newsList = new ArrayList<OneDayNews>();
 		OneDayNews oneDay = new OneDayNews();
 		String jsonYesterday = getJson(URL_BEFORE + DateUtils.format(d));
@@ -83,21 +122,31 @@ public class StoryService {
 		return stories;
 	}
 
-	public String getImgUrl(Date date, int storyId) throws MalformedURLException, IOException {
+	public Body getOneDayNews(String sDate) throws ParseException, JSONException, IOException {
+		Date d = DateUtils.parse(sDate);
+		List<OneDayNews> newsList = getBeforeNews(DateUtils.addDay(d, 1));
+		Body body = new Body();
+		body.setNewsList(newsList);
+		body.setPages(new ArrayList<Page>());
+		body.setQueryDate(DateUtils.format(d, DateUtils.FORMAT_YYYY_MM_DD));
+		return body;
+	}
+
+	public String getImgUrl(Date date, int storyId, int type) throws MalformedURLException, IOException {
 		String imgUrl;
-		ImgUrlModel img = new ImgUrlModel().findById(storyId);
+		ImgUrlModel img = ImgUrlModel.dao.findById(storyId);
 		if (img != null) {
 			imgUrl = img.getStr("url");
 		} else {
-			imgUrl = saveImg(date, storyId);
+			imgUrl = saveImg(date, storyId, type);
 		}
 		return imgUrl;
 	}
 
-	private String saveImg(Date date, int storyId) throws MalformedURLException, IOException {
+	private String saveImg(Date date, int storyId, int type) throws MalformedURLException, IOException {
 		JSONObject newsJson = new JSONObject(getJson(URL_NEWS + storyId));
 		String imgLocalUrl = getImgLocalUrl(date, newsJson.getString("image"));
-		new ImgUrlModel().set("id", storyId).set("url", imgLocalUrl).set("img_date", new java.sql.Date(date.getTime())).save();
+		new ImgUrlModel().set("id", storyId).set("type", type).set("url", imgLocalUrl).set("img_date", new java.sql.Date(date.getTime())).save();
 		return imgLocalUrl;
 	}
 
@@ -105,9 +154,9 @@ public class StoryService {
 		File filePath = new File("Web/static/img/pic/" + DateUtils.format(date));
 		if (!filePath.exists()) filePath.mkdirs();
 		String file = filePath.getPath() + "/" + (imgageUrl.replaceAll(":", "-").replaceAll("/", "_"));
-		if (new File(file).exists()) return file.replaceFirst("Web/", "");
+		if (new File(file).exists()) return file.replaceFirst("Web", "");
 		downloadImg(imgageUrl, file);
-		return file.replaceFirst("Web/", "");
+		return file.replaceFirst("Web", "");
 	}
 
 	private void downloadImg(String imgageUrl, String file) throws MalformedURLException, IOException {

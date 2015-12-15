@@ -6,16 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="renderer" content="webkit">
 	<title>知乎日报Web版</title>
-	    <meta name="description" content="">
-    <meta name="author" content="">
-	<link rel="icon" href="static/favicon.ico" />
+	<link rel="icon" href="/static/favicon.ico">
 	<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap-datetimepicker.min.css">
+	<link rel="stylesheet" href="/static/style.css">
 
     <!--[if lt IE 9]>
       <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-	<link rel="stylesheet" href="static/style.css" type="text/css">
 </head>
 <body>
 <nav class="navbar navbar-default navbar-fixed-top">
@@ -27,13 +26,19 @@
 				<span class="icon-bar"></span>
 			</button>
 			<a class="navbar-brand" href="/">
-				<img src="static/web_logo.png" class="logo">
+				<img src="/static/web_logo.png" class="logo">
 			</a>
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
-			<ul class="nav navbar-nav navbar-right">
+			<form class="navbar-form navbar-right" action="" method="post">
+				<div class="input-group date form_date col-md-10" data-date="" data-date-format="yyyy/mm/dd">
+					<input class="form-control" size="14" type="text" value="${queryDate!}" readonly>
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+				</div>
+			</form>
+			<!-- <ul class="nav navbar-nav navbar-right">
 				<li><a href="https://github.com/JuanWoo/zhihuDaily">GitHub</a></li>
-			</ul>
+			</ul> -->
 		</div>
 	</div>
 </nav>

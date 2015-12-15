@@ -1,10 +1,14 @@
 <div class="foot">
 	<br> <br> <br> <br>
-	<div>© 2015 知乎日报Web版 v0.9 &nbsp;·&nbsp; Powered by <a href="https://github.com/JuanWoo">JuanWoo</a></div>
+	<div>© 2015 知乎日报Web版 v0.9 &nbsp;·&nbsp;
+		<a href="https://github.com/JuanWoo/zhihuDaily">GitHub</a> &nbsp;·&nbsp; Powered by
+		<a href="https://JuanWoo.github.com">JuanWoo</a>
+	</div>
 	<br>
 </div>
 <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="/static/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 	$("img[name='image']").each( function(i){  
@@ -12,7 +16,7 @@ $(document).ready(function() {
 		    type : "GET",
 		    url : "/image",
 		    dataType : "json",
-		    data : { id : $(this).attr("id"), date : $(this).attr("date") },
+		    data : { id : $(this).attr("id"), type : $(this).attr("type"), date : $(this).attr("date") },
 		    success : function(d) {
 		    	$("#"+d.id).attr("src", d.src);
 		    },
@@ -22,6 +26,21 @@ $(document).ready(function() {
 	$("a.list-group-item").bind('mouseover', function(){ $(this).find("span").show(); });
 	$("a.list-group-item").bind('mouseleave', function(){ $(this).find("span").hide(); });
 	$("a.list-group-item").bind('click', function(){ $(this).css("background-color", "#fff"); });
+	$('.form_date').bind('changeDate', function(){
+		var d = $(this).find("input").val().replace(/\//g, "");
+		$(this).parent().attr("action", "/oneDayNews/" + d);
+		$(this).parent().submit();
+	});
+	$('.form_date').datetimepicker({
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		minView: 2,
+		forceParse: 0,
+		startDate: "2013/5/19",
+		endDate: new Date()
+    });
 })
 </script>
 </body>

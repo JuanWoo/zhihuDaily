@@ -13,8 +13,15 @@ import java.util.Date;
 
 public class DateUtils {
 	public static final String FORMAT_YYYYMMDD = "yyyyMMdd";
+	public static final String FORMAT_YYYY_MM_DD = "yyyy/MM/dd";
 	public static final String FORMAT_YYYY_MM_DD_EEEE = "yyyy.MM.dd EEEE";
 
+	public static Date getDate(int year, int month, int date) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(year, month, date);
+		return cal.getTime();
+	}
+	
 	public static Date parse(String date) throws ParseException {
 		return new SimpleDateFormat(FORMAT_YYYYMMDD).parse(date);
 	}

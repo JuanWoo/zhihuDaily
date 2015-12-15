@@ -1,5 +1,3 @@
-# zhihuDaily
-
 ##知乎日报Web版
 
 <br>1、[JFinal][JFinal url]
