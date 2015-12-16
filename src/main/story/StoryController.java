@@ -28,7 +28,7 @@ public class StoryController extends Controller {
 	}
 
 	public void image() throws MalformedURLException, IOException, ParseException {
-		String imgUrl = service.getImgUrl(DateUtils.parse(getPara("date")), getParaToInt("id"), getParaToInt("type"));
+		String imgUrl = service.getImgUrl(DateUtils.parse(getPara("date")), getParaToInt("id"), getParaToInt("type"), getPara("src"));
 		setAttr("src", imgUrl);
 		setAttr("id", getParaToInt("id"));
 		renderJson();

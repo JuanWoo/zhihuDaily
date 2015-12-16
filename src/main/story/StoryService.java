@@ -107,7 +107,6 @@ public class StoryService {
 		Story story = null;
 		for (int i = 0; i < storyArr.length(); i++) {
 			jsonobj = storyArr.getJSONObject(i);
-			if (!jsonobj.isNull("theme")) continue;// 忽略主题日报
 			story = new Story();
 			story.setId(jsonobj.getInt("id"));
 			story.setType(jsonobj.getInt("type"));
@@ -115,7 +114,7 @@ public class StoryService {
 			story.setGa_prefix(jsonobj.getString("ga_prefix"));
 			story.setTitle(jsonobj.getString("title"));
 			story.setMultipic(jsonobj.isNull("multipic") ? false : jsonobj.getBoolean("multipic"));
-			//story.setImage(getImgUrl(date, story.getId()));
+			if (story.getType() != 0) story.setImage(getImgLocalUrl(date, jsonobj.getJSONArray("images").get(0).toString()));
 			story.setDate(DateUtils.format(date));
 			stories.add(story);
 		}
@@ -132,20 +131,20 @@ public class StoryService {
 		return body;
 	}
 
-	public String getImgUrl(Date date, int storyId, int type) throws MalformedURLException, IOException {
+	public String getImgUrl(Date date, int storyId, int type, String imgSrc) throws MalformedURLException, IOException {
 		String imgUrl;
 		ImgUrlModel img = ImgUrlModel.dao.findById(storyId);
 		if (img != null) {
 			imgUrl = img.getStr("url");
 		} else {
-			imgUrl = saveImg(date, storyId, type);
+			imgUrl = saveImg(date, storyId, type, imgSrc);
 		}
 		return imgUrl;
 	}
 
-	private String saveImg(Date date, int storyId, int type) throws MalformedURLException, IOException {
-		JSONObject newsJson = new JSONObject(getJson(URL_NEWS + storyId));
-		String imgLocalUrl = getImgLocalUrl(date, newsJson.getString("image"));
+	private String saveImg(Date date, int storyId, int type, String imgSrc) throws IOException, MalformedURLException {
+		if (type == 0) imgSrc = new JSONObject(getJson(URL_NEWS + storyId)).getString("image");
+		String imgLocalUrl = getImgLocalUrl(date, imgSrc);
 		new ImgUrlModel().set("id", storyId).set("type", type).set("url", imgLocalUrl).set("img_date", new java.sql.Date(date.getTime())).save();
 		return imgLocalUrl;
 	}

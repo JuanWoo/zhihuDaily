@@ -16,14 +16,24 @@ $(document).ready(function() {
 		    type : "GET",
 		    url : "/image",
 		    dataType : "json",
-		    data : { id : $(this).attr("id"), type : $(this).attr("type"), date : $(this).attr("date") },
+		    data : { id : $(this).attr("id"), type : $(this).attr("type"), date : $(this).attr("date"), src : $(this).attr("src") },
 		    success : function(d) {
 		    	$("#"+d.id).attr("src", d.src);
 		    },
 		    error : function(textStatus) { }
 		});
 	});
-	$("a.list-group-item").bind('mouseover', function(){ $(this).find("span").show(); });
+	$("a.list-group-item").bind('mouseover', function(){
+		var span = $(this).find("span");
+		if (span.find("img").attr("type") != 0) {
+			span.css("width", "150px");
+			span.css("height", "150px");
+		} else {
+			span.css("width", "260px");
+			span.css("height", "260px");
+		}
+		span.show();
+	});
 	$("a.list-group-item").bind('mouseleave', function(){ $(this).find("span").hide(); });
 	$("a.list-group-item").bind('click', function(){ $(this).css("background-color", "#fff"); });
 	$('.form_date').bind('changeDate', function(){
