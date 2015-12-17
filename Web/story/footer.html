@@ -11,7 +11,8 @@
 <script src="${base}/static/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-	$("img[name='image']").each( function(i){  
+	$("img[name='image']").each( function(i){
+		if (/(Android|Windows Phone|webOS|iPhone|iPod|BlackBerry)/i.test(navigator.userAgent)) return;
 		$.ajax({
 		    type : "GET",
 		    url : "${base}/image",
@@ -20,11 +21,11 @@ $(document).ready(function() {
 		    success : function(d) {
 		    	$("#"+d.id).attr("src", "${base}/" + d.src);
 		    },
-		    error : function(textStatus) { }
+		    error : function(d) { }
 		});
 	});
 	$("a.list-group-item").bind('mouseover', function(){
-		if (/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent)) return;
+		if (/(Android|Windows Phone|webOS|iPhone|iPod|BlackBerry)/i.test(navigator.userAgent)) return;
 		var span = $(this).find("span");
 		if (span.find("img").attr("type") != 0) {
 			span.css("width", "150px");
