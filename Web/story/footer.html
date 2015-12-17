@@ -24,6 +24,7 @@ $(document).ready(function() {
 		});
 	});
 	$("a.list-group-item").bind('mouseover', function(){
+		if (/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent)) return;
 		var span = $(this).find("span");
 		if (span.find("img").attr("type") != 0) {
 			span.css("width", "150px");
