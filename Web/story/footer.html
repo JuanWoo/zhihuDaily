@@ -8,17 +8,17 @@
 </div>
 <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script src="/static/bootstrap-datetimepicker.min.js"></script>
+<script src="${base}/static/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 	$("img[name='image']").each( function(i){  
 		$.ajax({
 		    type : "GET",
-		    url : "/image",
+		    url : "${base}/image",
 		    dataType : "json",
 		    data : { id : $(this).attr("id"), type : $(this).attr("type"), date : $(this).attr("date"), src : $(this).attr("src") },
 		    success : function(d) {
-		    	$("#"+d.id).attr("src", d.src);
+		    	$("#"+d.id).attr("src", "${base}/" + d.src);
 		    },
 		    error : function(textStatus) { }
 		});
@@ -36,12 +36,12 @@ $(document).ready(function() {
 	});
 	$("a.list-group-item").bind('mouseleave', function(){ $(this).find("span").hide(); });
 	$("a.list-group-item").bind('click', function(){ $(this).css("background-color", "#fff"); });
-	$('.form_date').bind('changeDate', function(){
+	$(".form_date").bind('changeDate', function(){
 		var d = $(this).find("input").val().replace(/\//g, "");
-		$(this).parent().attr("action", "/oneDayNews/" + d);
+		$(this).parent().attr("action", "${base}/oneDayNews/" + d);
 		$(this).parent().submit();
 	});
-	$('.form_date').datetimepicker({
+	$(".form_date").datetimepicker({
         todayBtn:  1,
 		autoclose: 1,
 		todayHighlight: 1,

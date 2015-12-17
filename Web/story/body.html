@@ -10,7 +10,7 @@
 		<#list news.stories as s>
 		<a class="list-group-item" href="http://daily.zhihu.com/story/${s.id}">
 			<span style="display:none;" class="thumbnail">
-				<img name="image" id="${s.id}" type="${s.type}" date="${s.date}" src="${s.image}" alt="" />
+				<img name="image" id="${s.id}" type="${s.type}" date="${s.date}" src="${base}/${s.image}" alt="" />
 			</span>
 			${s.title}
 		</a>
@@ -22,15 +22,15 @@
 		<ul class="pagination">
 		<#list pages as p>
 			<#if p.page=1 && !p.isCurrent()>
-				<li><a href="/" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+				<li><a href="${base}/" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
 			</#if>
 			<#if !p.isHide() && p.isCurrent()>
 				<li class="active"><span>${p.page}</span></li>
 			<#elseif !p.isHide()>
-				<li><a href="/${p.page}">${p.page}</a></li>
+				<li><a href="${base}/${p.page}">${p.page}</a></li>
 			</#if>
 			<#if p.page=pages?size && !p.isCurrent()>
-				<li><a href="/${pages?size}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+				<li><a href="${base}/${pages?size}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
 			</#if>
 		</#list>
 		</ul>

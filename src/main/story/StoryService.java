@@ -27,6 +27,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.jfinal.core.JFinal;
+
 /**
  * @desc	
  * @author	JuanWoo
@@ -39,6 +41,8 @@ public class StoryService {
 	private final static String URL_NEWS = "http://news-at.zhihu.com/api/4/news/";
 	private final static String URL_THEMES = "http://news-at.zhihu.com/api/4/themes";
 	private final static String URL_THEME = "http://news-at.zhihu.com/api/4/theme/";
+	private final static String IMG_URL_PREFIX = "/static/img/pic/";
+	private final static String WEBROOT = JFinal.me().getServletContext().getRealPath("/");
 	private final Date birthday = DateUtils.getDate(2013, 4, 19);// 知乎日报的生日20130519
 	private final int eachPage = 3;
 
@@ -114,7 +118,11 @@ public class StoryService {
 			story.setGa_prefix(jsonobj.getString("ga_prefix"));
 			story.setTitle(jsonobj.getString("title"));
 			story.setMultipic(jsonobj.isNull("multipic") ? false : jsonobj.getBoolean("multipic"));
-			if (story.getType() != 0) story.setImage(getImgLocalUrl(date, jsonobj.getJSONArray("images").get(0).toString()));
+			if (story.getType() != 0) {
+				story.setImage(getImgLocalUrl(date, story.getId(), jsonobj.getJSONArray("images").get(0).toString()));
+			} else {
+				//story.setImage(IMG_URL_PREFIX + story.getId() + ".jpg");
+			}
 			story.setDate(DateUtils.format(date));
 			stories.add(story);
 		}
@@ -132,30 +140,26 @@ public class StoryService {
 	}
 
 	public String getImgUrl(Date date, int storyId, int type, String imgSrc) throws MalformedURLException, IOException {
-		String imgUrl;
-		ImgUrlModel img = ImgUrlModel.dao.findById(storyId);
-		if (img != null) {
-			imgUrl = img.getStr("url");
-		} else {
-			imgUrl = saveImg(date, storyId, type, imgSrc);
-		}
+		String file = WEBROOT + IMG_URL_PREFIX + DateUtils.format(date) + "/" + storyId + ".jpg";
+		if (new File(file).exists()) return file.substring(WEBROOT.length() + 1);
+		String imgUrl = saveImg(date, storyId, type, imgSrc);
 		return imgUrl;
 	}
 
 	private String saveImg(Date date, int storyId, int type, String imgSrc) throws IOException, MalformedURLException {
 		if (type == 0) imgSrc = new JSONObject(getJson(URL_NEWS + storyId)).getString("image");
-		String imgLocalUrl = getImgLocalUrl(date, imgSrc);
-		new ImgUrlModel().set("id", storyId).set("type", type).set("url", imgLocalUrl).set("img_date", new java.sql.Date(date.getTime())).save();
+		String imgLocalUrl = getImgLocalUrl(date, storyId, imgSrc);
+		//new ImgUrlModel().set("id", storyId).set("type", type).set("url", imgLocalUrl).set("img_date", new java.sql.Date(date.getTime())).save();
 		return imgLocalUrl;
 	}
 
-	private String getImgLocalUrl(Date date, String imgageUrl) throws MalformedURLException, IOException {
-		File filePath = new File("Web/static/img/pic/" + DateUtils.format(date));
+	private String getImgLocalUrl(Date date, int storyId, String imgageUrl) throws MalformedURLException, IOException {
+		File filePath = new File(WEBROOT + IMG_URL_PREFIX + DateUtils.format(date));
 		if (!filePath.exists()) filePath.mkdirs();
-		String file = filePath.getPath() + "/" + (imgageUrl.replaceAll(":", "-").replaceAll("/", "_"));
-		if (new File(file).exists()) return file.replaceFirst("Web", "");
+		String file = filePath.getPath() + "/" + storyId + ".jpg";
+		if (new File(file).exists()) return file.substring(WEBROOT.length() + 1);
 		downloadImg(imgageUrl, file);
-		return file.replaceFirst("Web", "");
+		return file.substring(WEBROOT.length());
 	}
 
 	private void downloadImg(String imgageUrl, String file) throws MalformedURLException, IOException {
