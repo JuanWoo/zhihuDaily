@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @desc	
@@ -15,15 +16,19 @@ public class DateUtils {
 	public static final String FORMAT_YYYYMMDD = "yyyyMMdd";
 	public static final String FORMAT_YYYY_MM_DD = "yyyy/MM/dd";
 	public static final String FORMAT_YYYY_MM_DD_EEEE = "yyyy.MM.dd EEEE";
+	public static final TimeZone TIME_ZONE = TimeZone.getTimeZone("GMT+8");
 
 	public static Date getDate(int year, int month, int date) {
 		Calendar cal = Calendar.getInstance();
+		cal.setTimeZone(TIME_ZONE);
 		cal.set(year, month, date);
 		return cal.getTime();
 	}
 	
 	public static Date parse(String date) throws ParseException {
-		return new SimpleDateFormat(FORMAT_YYYYMMDD).parse(date);
+		SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_YYYYMMDD);
+		sdf.setTimeZone(TIME_ZONE);
+		return sdf.parse(date);
 	}
 
 	public static String format(Date date) {
@@ -31,7 +36,9 @@ public class DateUtils {
 	}
 
 	public static String format(Date date, String format) {
-		return new SimpleDateFormat(format).format(date);
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		sdf.setTimeZone(TIME_ZONE);
+		return sdf.format(date);
 	}
 
 	public static Date addDay(Date d, int amount) {
@@ -40,6 +47,7 @@ public class DateUtils {
 
 	public static Date addDate(Date d, int amount, int field) {
 		Calendar cal = Calendar.getInstance();
+		cal.setTimeZone(TIME_ZONE);
 		cal.setTime(d);
 		cal.add(field, amount);
 		return cal.getTime();
