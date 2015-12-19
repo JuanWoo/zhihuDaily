@@ -24,17 +24,7 @@ public class Config extends JFinalConfig {
 		me.add("/", StoryController.class, "/story");
 	}
 
-	public void configPlugin(Plugins me) {
-		//loadPropertyFile("property/db.properties");
-		//C3p0Plugin c3p0Plugin = new C3p0Plugin(getProperty("jdbcUrl"), getProperty("user"), getProperty("password"));
-		//c3p0Plugin.setDriverClass(getProperty("driverClass"));
-		//me.add(c3p0Plugin);
-		//ActiveRecordPlugin arp = new ActiveRecordPlugin(c3p0Plugin);
-		//arp.setContainerFactory(new CaseInsensitiveContainerFactory());
-		//arp.setDialect(new OracleDialect());
-		//arp.addMapping("img_url", "id", ImgUrlModel.class);
-		//me.add(arp);
-	}
+	public void configPlugin(Plugins me) {}
 
 	public void configInterceptor(Interceptors me) {}
 
