@@ -16,17 +16,15 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import main.common.DateUtils;
 import main.story.po.Body;
 import main.story.po.OneDayNews;
 import main.story.po.Page;
 import main.story.po.Story;
-
+import main.story.po.Theme;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.jfinal.core.JFinal;
 
 /**
@@ -41,12 +39,12 @@ public class StoryService {
 	private final static String URL_NEWS = "http://news-at.zhihu.com/api/4/news/";
 	private final static String URL_THEMES = "http://news-at.zhihu.com/api/4/themes";
 	private final static String URL_THEME = "http://news-at.zhihu.com/api/4/theme/";
-	private final static String IMG_URL_PREFIX = "/static/img/pic/";
+	private final static String IMG_URL_PREFIX = "/static/img/";
 	private final static String WEBROOT = JFinal.me().getServletContext().getRealPath("/");
 	private final Date birthday = DateUtils.getDate(2013, 4, 19);// 知乎日报的生日20130519
 	private final int eachPage = 3;
 
-	public Body renderBody(int currentPage) throws ParseException, IOException {
+	public Body getIndex(int currentPage) throws ParseException, IOException {
 		Date today = DateUtils.parse(DateUtils.format(new Date()));
 		int pageNum = (int) ((today.getTime() - birthday.getTime()) / (24 * 60 * 60 * 1000) / eachPage + 1);
 		currentPage = Math.min(currentPage, pageNum);
@@ -84,8 +82,8 @@ public class StoryService {
 		OneDayNews oneDay = new OneDayNews();
 		String jsonToday = getJson(URL_LATEST);
 		List<Story> storiesToday = getStories(jsonToday);
-		if (storiesToday.size() > 0 && !DateUtils.format(today).equals(storiesToday.get(0).getDate())) return newsList;
-		oneDay.setDate(DateUtils.format(today, DateUtils.FORMAT_YYYY_MM_DD_EEEE));
+		if (storiesToday.size() > 0 && !storiesToday.get(0).getPath().endsWith(DateUtils.format(today))) return newsList;
+		oneDay.setHead(DateUtils.format(today, DateUtils.FORMAT_YYYY_MM_DD_EEEE));
 		oneDay.setStories(storiesToday);
 		newsList.add(oneDay);
 		return newsList;
@@ -96,7 +94,7 @@ public class StoryService {
 		OneDayNews oneDay = new OneDayNews();
 		String jsonYesterday = getJson(URL_BEFORE + DateUtils.format(d));
 		List<Story> storiesYesterday = getStories(jsonYesterday);
-		oneDay.setDate(DateUtils.format(DateUtils.addDay(d, -1), DateUtils.FORMAT_YYYY_MM_DD_EEEE));
+		oneDay.setHead(DateUtils.format(DateUtils.addDay(d, -1), DateUtils.FORMAT_YYYY_MM_DD_EEEE));
 		oneDay.setStories(storiesYesterday);
 		newsList.add(oneDay);
 		return newsList;
@@ -116,14 +114,11 @@ public class StoryService {
 			story.setType(jsonobj.getInt("type"));
 			story.setTitle(jsonobj.getString("title"));
 			story.setGa_prefix(jsonobj.getString("ga_prefix"));
-			story.setTitle(jsonobj.getString("title"));
 			story.setMultipic(jsonobj.isNull("multipic") ? false : jsonobj.getBoolean("multipic"));
+			story.setPath("pic/" + DateUtils.format(date));
 			if (story.getType() != 0) {
-				story.setImage(getImgLocalUrl(date, story.getId(), jsonobj.getJSONArray("images").get(0).toString()));
-			} else {
-				//story.setImage(IMG_URL_PREFIX + story.getId() + ".jpg");
+				story.setImage(getImgLocalUrl(story.getPath(), story.getId(), jsonobj.getJSONArray("images").get(0).toString()));
 			}
-			story.setDate(DateUtils.format(date));
 			stories.add(story);
 		}
 		return stories;
@@ -134,27 +129,78 @@ public class StoryService {
 		List<OneDayNews> newsList = getBeforeNews(DateUtils.addDay(d, 1));
 		Body body = new Body();
 		body.setNewsList(newsList);
-		body.setPages(new ArrayList<Page>());
 		body.setQueryDate(DateUtils.format(d, DateUtils.FORMAT_YYYY_MM_DD));
 		return body;
 	}
 
-	public String getImgUrl(Date date, int storyId, int type, String imgSrc) throws MalformedURLException, IOException {
-		String file = WEBROOT + IMG_URL_PREFIX + DateUtils.format(date) + "/" + storyId + ".jpg";
+	public List<Theme> getThemes() throws IOException {
+		List<Theme> themes = new ArrayList<Theme>();
+		String jsonThemes = getJson(URL_THEMES);
+		JSONObject jsonobj = new JSONObject(jsonThemes);
+		JSONArray themesArray = jsonobj.getJSONArray("others");
+		Theme theme = null;
+		for (int i = 0; i < themesArray.length(); i++) {
+			jsonobj = themesArray.getJSONObject(i);
+			theme = new Theme();
+			theme.setId(jsonobj.getInt("id"));
+			theme.setColor(jsonobj.getInt("color"));
+			theme.setName(jsonobj.getString("name"));
+			theme.setThumbnail(jsonobj.getString("thumbnail"));
+			theme.setDescription(jsonobj.getString("description"));
+			themes.add(theme);
+		}
+		return themes;
+	}
+
+	public Body getTheme(int themeId) throws IOException, JSONException, ParseException {
+		JSONObject jsonobj = new JSONObject(getJson(URL_THEME + themeId));
+		List<Story> themeStories = getThemeStories(jsonobj, themeId);
+		OneDayNews oneDay = new OneDayNews();
+		oneDay.setStories(themeStories);
+		oneDay.setHead(jsonobj.getString("name"));
+		List<OneDayNews> newsList = new ArrayList<OneDayNews>();
+		newsList.add(oneDay);
+		Body body = new Body();
+		body.setNewsList(newsList);
+		return body;
+	}
+
+	private List<Story> getThemeStories(JSONObject jsonobj, int themeId) throws IOException, JSONException, ParseException {
+		List<Story> stories = new ArrayList<Story>();
+		if (jsonobj.length() == 0) return stories;
+		JSONArray storyArr = jsonobj.getJSONArray("stories");
+		Story story = null;
+		for (int i = 0; i < storyArr.length(); i++) {
+			jsonobj = storyArr.getJSONObject(i);
+			story = new Story();
+			story.setId(jsonobj.getInt("id"));
+			story.setType(jsonobj.getInt("type"));
+			story.setTitle(jsonobj.getString("title"));
+			story.setPath("theme/" + themeId);
+			if (!jsonobj.isNull("images")) {
+				story.setImage(getImgLocalUrl(story.getPath(), story.getId(), jsonobj.getJSONArray("images").get(0).toString()));
+			}
+			stories.add(story);
+		}
+		return stories;
+	}
+
+	public String getImgUrl(String path, int storyId, int type, String imgSrc) throws MalformedURLException, IOException {
+		String file = WEBROOT + IMG_URL_PREFIX + path + "/" + storyId + ".jpg";
 		if (new File(file).exists()) return file.substring(WEBROOT.length() + 1);
-		String imgUrl = saveImg(date, storyId, type, imgSrc);
+		String imgUrl = saveImg(path, storyId, type, imgSrc);
 		return imgUrl;
 	}
 
-	private String saveImg(Date date, int storyId, int type, String imgSrc) throws IOException, MalformedURLException {
-		if (type == 0) imgSrc = new JSONObject(getJson(URL_NEWS + storyId)).getString("image");
-		String imgLocalUrl = getImgLocalUrl(date, storyId, imgSrc);
-		//new ImgUrlModel().set("id", storyId).set("type", type).set("url", imgLocalUrl).set("img_date", new java.sql.Date(date.getTime())).save();
+	private String saveImg(String path, int storyId, int type, String imgSrc) throws IOException, MalformedURLException {
+		if (type == 0 && path.indexOf("theme") < 0) imgSrc = new JSONObject(getJson(URL_NEWS + storyId)).getString("image");
+		if (WEBROOT.endsWith(imgSrc) || imgSrc.equals("/")) return "";
+		String imgLocalUrl = getImgLocalUrl(path, storyId, imgSrc);
 		return imgLocalUrl;
 	}
 
-	private String getImgLocalUrl(Date date, int storyId, String imgageUrl) throws MalformedURLException, IOException {
-		File filePath = new File(WEBROOT + IMG_URL_PREFIX + DateUtils.format(date));
+	private String getImgLocalUrl(String path, int storyId, String imgageUrl) throws MalformedURLException, IOException {
+		File filePath = new File(WEBROOT + IMG_URL_PREFIX + path);
 		if (!filePath.exists()) filePath.mkdirs();
 		String file = filePath.getPath() + "/" + storyId + ".jpg";
 		if (new File(file).exists()) return file.substring(WEBROOT.length() + 1);
@@ -163,7 +209,7 @@ public class StoryService {
 	}
 
 	private void downloadImg(String imgageUrl, String file) throws MalformedURLException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL(imgageUrl).openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(imgageUrl.replace("https:", "http:")).openConnection();
 		DataInputStream in = new DataInputStream(connection.getInputStream());
 		FileOutputStream fout = new FileOutputStream(file);
 		DataOutputStream out = new DataOutputStream(fout);

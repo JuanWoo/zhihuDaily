@@ -18,9 +18,10 @@
 </head>
 <body>
 <nav class="navbar navbar-default navbar-fixed-top">
-	<div class="container" style="max-width: 800px;">
+	<div class="container-fluid">
 		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
@@ -29,16 +30,32 @@
 				<img src="${base}/static/img/web_logo.png" class="logo">
 			</a>
 		</div>
-		<div id="navbar" class="navbar-collapse collapse">
-			<form class="navbar-form navbar-right" action="" method="post">
-				<div class="input-group date form_date col-md-10" data-date="" data-date-format="yyyy/mm/dd">
-					<input class="form-control" size="14" type="text" value="${queryDate!}" readonly>
-					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li><a href="${base}/">首页</a></li>
+				<li class="dropdown">
+					<a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">主题日报 <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<!-- <li><a href="#">Action</a></li>
+						<li role="separator" class="divider"></li> -->
+					</ul>
+				</li>
+			</ul>
+			<!-- <form class="navbar-form navbar-left" role="search">
+				<div class="form-group">
+					<input type="text" class="form-control" placeholder="Search">
 				</div>
-			</form>
-			<!-- <ul class="nav navbar-nav navbar-right">
-				<li><a href="https://github.com/JuanWoo/zhihuDaily">GitHub</a></li>
-			</ul> -->
+				<button type="submit" class="btn btn-default">Submit</button>
+			</form> -->
+			<ul class="nav navbar-nav navbar-right">
+				<li><form class="navbar-form" action="" method="post">
+					<div class="input-group date form_date col-md-10" data-date="" data-date-format="yyyy/mm/dd">
+						<input class="form-control" size="14" type="text" value="${queryDate!}" readonly>
+						<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+					</div>
+				</form></li>
+			</ul>
 		</div>
 	</div>
 </nav>

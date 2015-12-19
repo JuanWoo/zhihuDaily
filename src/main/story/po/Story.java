@@ -13,7 +13,7 @@ public class Story {
 	private String image = "";
 	private int type;
 	private boolean multipic;
-	private String date;
+	private String path;
 
 	public int getId() {
 		return id;
@@ -63,11 +63,11 @@ public class Story {
 		this.multipic = multipic;
 	}
 
-	public String getDate() {
-		return date;
+	public String getPath() {
+		return path;
 	}
 
-	public void setDate(String date) {
-		this.date = date;
+	public void setPath(String path) {
+		this.path = path;
 	}
 }

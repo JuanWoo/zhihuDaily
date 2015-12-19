@@ -35,24 +35,34 @@ $(document).ready(function() {
 		    type : "GET",
 		    url : "${base}/image",
 		    dataType : "json",
-		    data : { id : $(this).attr("id"), type : $(this).attr("type"), date : $(this).attr("date"), src : $(this).attr("src") },
+		    data : { id : $(this).attr("id"), type : $(this).attr("type"), path : $(this).attr("path"), src : $(this).attr("src") },
 		    success : function(d) {
 		    	$("#"+d.id).attr("src", "${base}/" + d.src);
 		    },
 		    error : function(d) { }
 		});
 	});
+	$.ajax({
+	    type : "GET",
+	    url : "${base}/themes",
+	    success : function(d) {
+			for (var i in d.themes) {
+				$("ul.dropdown-menu").append($("<li></li>").append($("<a></a>").text(d.themes[i].name).attr("href", "${base}/theme/" + d.themes[i].id)));
+			} 
+	    },
+	    error : function(d) { }
+	});
 	$("a.list-group-item").bind('mouseover', function(){
 		if (/(Android|Windows Phone|webOS|iPhone|iPod|BlackBerry)/i.test(navigator.userAgent)) return;
 		var span = $(this).find("span");
-		if (span.find("img").attr("type") != 0) {
+		if (span.find("img").attr("type") != 0 || span.find("img").attr("path").indexOf("theme") > -1) {
 			span.css("width", "150px");
 			span.css("height", "150px");
 		} else {
 			span.css("width", "260px");
 			span.css("height", "260px");
 		}
-		span.show();
+		if (span.find("img").attr("src") != "${base}/") span.show();
 	});
 	$("a.list-group-item").bind('mouseleave', function(){ $(this).find("span").hide(); });
 	$("a.list-group-item").bind('click', function(){ $(this).css("background-color", "#fff"); });

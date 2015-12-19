@@ -13,6 +13,10 @@ body {
 	text-align: center
 }
 
+.container-fluid {
+	max-width: 850px
+}
+
 .container-inner {
 	background-color: #fff;
 	max-width: 750px;
@@ -28,9 +32,14 @@ body {
 	color: #fff
 }
 
-.navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
+.navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover,
+	.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover {
 	color: #fff;
 	background-color: #1cade9
+}
+
+.navbar-brand {
+	min-width: 140px
 }
 
 .navbar-brand, .navbar-nav>li>a {

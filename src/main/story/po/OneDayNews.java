@@ -9,15 +9,15 @@ import java.util.List;
  **/
 
 public class OneDayNews {
-	private String date;
+	private String head;
 	private List<Story> stories;
 
-	public String getDate() {
-		return date;
+	public String getHead() {
+		return head;
 	}
 
-	public void setDate(String date) {
-		this.date = date;
+	public void setHead(String head) {
+		this.head = head;
 	}
 
 	public List<Story> getStories() {
