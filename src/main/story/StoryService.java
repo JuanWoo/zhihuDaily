@@ -48,15 +48,19 @@ public class StoryService {
 		Date today = DateUtils.parse(DateUtils.format(new Date()));
 		int pageNum = (int) ((today.getTime() - birthday.getTime()) / (24 * 60 * 60 * 1000) / eachPage + 1);
 		currentPage = Math.min(currentPage, pageNum);
+		String todayHead = null;
 		List<OneDayNews> newsList = new ArrayList<OneDayNews>();
 		if (currentPage == 1) {
-			newsList.addAll(getTodayNews(today));
+			OneDayNews todayNews = getTodayNews(today);
+			todayHead = todayNews.getHead();
+			newsList.add(todayNews);
 		}
 
 		for (Date d = DateUtils.addDay(today, -(currentPage - 1) * eachPage + 1); d.after(birthday); d = DateUtils.addDay(d, -1)) {
 			if (d.after(today)) continue;
 			if (newsList.size() > eachPage - 1) break;
-			newsList.addAll(getBeforeNews(d));
+			OneDayNews oneDayNews = getBeforeNews(d);
+			if (!oneDayNews.getHead().equals(todayHead)) newsList.add(oneDayNews);
 		}
 
 		Body body = new Body();
@@ -77,27 +81,28 @@ public class StoryService {
 		return pages;
 	}
 
-	private List<OneDayNews> getTodayNews(Date today) throws IOException, JSONException, ParseException {
-		List<OneDayNews> newsList = new ArrayList<OneDayNews>();
+	private OneDayNews getTodayNews(Date today) throws IOException, JSONException, ParseException {
 		OneDayNews oneDay = new OneDayNews();
 		String jsonToday = getJson(URL_LATEST);
 		List<Story> storiesToday = getStories(jsonToday);
-		if (storiesToday.size() > 0 && !storiesToday.get(0).getPath().endsWith(DateUtils.format(today))) return newsList;
-		oneDay.setHead(DateUtils.format(today, DateUtils.FORMAT_YYYY_MM_DD_EEEE));
+		oneDay.setHead(DateUtils.format(getHeadDate(today, jsonToday), DateUtils.FORMAT_YYYY_MM_DD_EEEE));
 		oneDay.setStories(storiesToday);
-		newsList.add(oneDay);
-		return newsList;
+		return oneDay;
 	}
 
-	private List<OneDayNews> getBeforeNews(Date d) throws IOException, JSONException, ParseException {
-		List<OneDayNews> newsList = new ArrayList<OneDayNews>();
+	private OneDayNews getBeforeNews(Date d) throws IOException, JSONException, ParseException {
 		OneDayNews oneDay = new OneDayNews();
 		String jsonYesterday = getJson(URL_BEFORE + DateUtils.format(d));
 		List<Story> storiesYesterday = getStories(jsonYesterday);
-		oneDay.setHead(DateUtils.format(DateUtils.addDay(d, -1), DateUtils.FORMAT_YYYY_MM_DD_EEEE));
+		oneDay.setHead(DateUtils.format(getHeadDate(d, jsonYesterday), DateUtils.FORMAT_YYYY_MM_DD_EEEE));
 		oneDay.setStories(storiesYesterday);
-		newsList.add(oneDay);
-		return newsList;
+		return oneDay;
+	}
+
+	private Date getHeadDate(Date d, String jsonToday) throws ParseException {
+		JSONObject jsonobj = new JSONObject(jsonToday);
+		Date date = jsonobj.isNull("date") ? DateUtils.addDay(d, -1) : DateUtils.parse(jsonobj.getString("date"));
+		return date;
 	}
 
 	private List<Story> getStories(String jsonStr) throws IOException, JSONException, ParseException {
@@ -116,7 +121,7 @@ public class StoryService {
 			story.setGa_prefix(jsonobj.getString("ga_prefix"));
 			story.setMultipic(jsonobj.isNull("multipic") ? false : jsonobj.getBoolean("multipic"));
 			story.setPath("pic/" + DateUtils.format(date));
-			if (story.getType() != 0) {
+			if (story.getType() != 0 && !jsonobj.isNull("images")) {
 				story.setImage(getImgLocalUrl(story.getPath(), story.getId(), jsonobj.getJSONArray("images").get(0).toString()));
 			}
 			stories.add(story);
@@ -126,7 +131,9 @@ public class StoryService {
 
 	public Body getOneDayNews(String sDate) throws ParseException, JSONException, IOException {
 		Date d = DateUtils.parse(sDate);
-		List<OneDayNews> newsList = getBeforeNews(DateUtils.addDay(d, 1));
+		OneDayNews oneDay = getBeforeNews(DateUtils.addDay(d, 1));
+		List<OneDayNews> newsList = new ArrayList<OneDayNews>();
+		newsList.add(oneDay);
 		Body body = new Body();
 		body.setNewsList(newsList);
 		body.setQueryDate(DateUtils.format(d, DateUtils.FORMAT_YYYY_MM_DD));
