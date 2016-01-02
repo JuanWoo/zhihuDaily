@@ -30,29 +30,6 @@
 </script>
 <script type="text/javascript">
 $(document).ready(function() {
-	$("img[name='image']").each( function(i){
-		if (/(Android|Windows Phone|webOS|iPhone|iPod|BlackBerry)/i.test(navigator.userAgent)) return;
-		$.ajax({
-		    type : "GET",
-		    url : "${base}/image",
-		    dataType : "json",
-		    data : { id : $(this).attr("id"), type : $(this).attr("type"), path : $(this).attr("path"), src : $(this).attr("src") },
-		    success : function(d) {
-		    	$("#"+d.id).attr("src", "${base}/" + d.src);
-		    },
-		    error : function(d) { }
-		});
-	});
-	$.ajax({
-	    type : "GET",
-	    url : "${base}/themes",
-	    success : function(d) {
-			for (var i in d.themes) {
-				$("ul.dropdown-menu").append($("<li></li>").append($("<a></a>").text(d.themes[i].name).attr("href", "${base}/theme/" + d.themes[i].id)));
-			} 
-	    },
-	    error : function(d) { }
-	});
 	$("a.list-group-item").bind('mouseover', function(){
 		if (/(Android|Windows Phone|webOS|iPhone|iPod|BlackBerry)/i.test(navigator.userAgent)) return;
 		var span = $(this).find("span");
@@ -69,8 +46,7 @@ $(document).ready(function() {
 	$("a.list-group-item").bind('click', function(){ $(this).css("background-color", "#fff"); });
 	$(".form_date").bind('changeDate', function(){
 		var d = $(this).find("input").val().replace(/\//g, "");
-		$(this).parent().attr("action", "${base}/oneDayNews/" + d);
-		$(this).parent().submit();
+		window.location.href = "${base}/oneDayNews/" + d;
 	});
 	$(".form_date").datetimepicker({
         todayBtn:  1,
@@ -83,6 +59,29 @@ $(document).ready(function() {
 		endDate: new Date()
     });
 	if ($(".form-control").val() == "") { $(".form-control").val("按日期检索"); }
+	$.ajax({
+	    type : "GET",
+	    url : "${base}/themes",
+	    success : function(d) {
+			for (var i in d.themes) {
+				$("ul.dropdown-menu").append($("<li></li>").append($("<a></a>").text(d.themes[i].name).attr("href", "${base}/theme/" + d.themes[i].id)));
+			} 
+	    },
+	    error : function(d) { }
+	});
+	$("img[name='image']").each( function(i){
+		if (/(Android|Windows Phone|webOS|iPhone|iPod|BlackBerry)/i.test(navigator.userAgent)) return;
+		$.ajax({
+		    type : "GET",
+		    url : "${base}/image",
+		    dataType : "json",
+		    data : { id : $(this).attr("id"), type : $(this).attr("type"), path : $(this).attr("path"), src : $(this).attr("src") },
+		    success : function(d) {
+		    	$("#"+d.id).attr("src", "${base}/" + d.src);
+		    },
+		    error : function(d) { }
+		});
+	});
 })
 </script>
 </body>
