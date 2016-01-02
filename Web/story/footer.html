@@ -34,11 +34,9 @@ $(document).ready(function() {
 		if (/(Android|Windows Phone|webOS|iPhone|iPod|BlackBerry)/i.test(navigator.userAgent)) return;
 		var span = $(this).find("span");
 		if (span.find("img").attr("type") != 0 || span.find("img").attr("path").indexOf("theme") > -1) {
-			span.css("width", "150px");
-			span.css("height", "150px");
+			span.css({"width":"150px", "height":"150px"});
 		} else {
-			span.css("width", "260px");
-			span.css("height", "260px");
+			span.css({"width":"260px", "height":"260px"});
 		}
 		if (span.find("img").attr("src") != "${base}/") span.show();
 	});
