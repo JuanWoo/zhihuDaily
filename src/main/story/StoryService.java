@@ -111,9 +111,9 @@ public class StoryService {
 			story = new Story();
 			story.setId(jsonobj.getInt("id"));
 			story.setType(jsonobj.getInt("type"));
-			story.setTitle(jsonobj.getString("title"));
 			story.setGa_prefix(jsonobj.getString("ga_prefix"));
 			story.setMultipic(jsonobj.isNull("multipic") ? false : jsonobj.getBoolean("multipic"));
+			story.setTitle(jsonobj.getString("title") + (story.isMultipic() ? "（多图）" : ""));
 			story.setPath("pic/" + DateUtils.format(date));
 			if (story.getType() != 0 && !jsonobj.isNull("images")) {
 				story.setImage(getImgLocalUrl(story.getPath(), story.getId(), jsonobj.getJSONArray("images").get(0).toString()));
