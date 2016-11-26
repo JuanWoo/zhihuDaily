@@ -1,14 +1,10 @@
 package main.story;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,15 +12,24 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import main.common.DateUtils;
 import main.story.po.Body;
 import main.story.po.OneDayNews;
 import main.story.po.Page;
 import main.story.po.Story;
 import main.story.po.Theme;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import com.jfinal.core.JFinal;
 
 /**
@@ -225,19 +230,16 @@ public class StoryService {
 	}
 
 	private String getJson(String urlStr) throws IOException {
-		URL url = new URL(urlStr);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.connect();
-		InputStream inputStream = connection.getInputStream();
-		Reader reader = new InputStreamReader(inputStream, "UTF-8");
-		BufferedReader bufferedReader = new BufferedReader(reader);
-		String str = null;
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		HttpGet httpget = new HttpGet(urlStr);
+		CloseableHttpResponse response = httpclient.execute(httpget);
 		StringBuffer sb = new StringBuffer();
-		while ((str = bufferedReader.readLine()) != null) {
-			sb.append(str);
+		HttpEntity entity = response.getEntity();
+		if (entity != null) {
+			sb.append(EntityUtils.toString(entity));
 		}
-		reader.close();
-		connection.disconnect();
+		response.close();
+		httpclient.close();
 		return sb.toString();
 	}
 }
