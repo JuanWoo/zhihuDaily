@@ -8,10 +8,16 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 
 import main.common.DateUtils;
 import main.story.po.Body;
@@ -23,8 +29,11 @@ import main.story.po.Theme;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,11 +48,11 @@ import com.jfinal.core.JFinal;
  **/
 
 public class StoryService {
-	private final static String URL_LATEST = "http://news-at.zhihu.com/api/4/news/latest";
-	private final static String URL_BEFORE = "http://news.at.zhihu.com/api/4/news/before/";
-	private final static String URL_NEWS = "http://news-at.zhihu.com/api/4/news/";
-	private final static String URL_THEMES = "http://news-at.zhihu.com/api/4/themes";
-	private final static String URL_THEME = "http://news-at.zhihu.com/api/4/theme/";
+	private final static String URL_LATEST = "https://news-at.zhihu.com/api/4/news/latest";
+	private final static String URL_BEFORE = "https://news.at.zhihu.com/api/4/news/before/";
+	private final static String URL_NEWS = "https://news-at.zhihu.com/api/4/news/";
+	private final static String URL_THEMES = "https://news-at.zhihu.com/api/4/themes";
+	private final static String URL_THEME = "https://news-at.zhihu.com/api/4/theme/";
 	private final static String IMG_URL_PREFIX = "/static/img/";
 	private final static String WEBROOT = JFinal.me().getServletContext().getRealPath("/");
 	private final Date birthday = DateUtils.getDate(2013, 4, 19);// 知乎日报的生日20130519
@@ -230,7 +239,7 @@ public class StoryService {
 	}
 
 	private String getJson(String urlStr) throws IOException {
-		CloseableHttpClient httpclient = HttpClients.createDefault();
+		CloseableHttpClient httpclient = createSSLClientDefault();
 		HttpGet httpget = new HttpGet(urlStr);
 		CloseableHttpResponse response = httpclient.execute(httpget);
 		StringBuffer sb = new StringBuffer();
@@ -241,5 +250,25 @@ public class StoryService {
 		response.close();
 		httpclient.close();
 		return sb.toString();
+	}
+
+	private static CloseableHttpClient createSSLClientDefault() {
+		try {
+			SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+				public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+					return true;
+				}
+			}).build();
+			SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, new HostnameVerifier() {
+				@Override
+				public boolean verify(String s, SSLSession sslSession) {
+					return true;
+				}
+			});
+			return HttpClients.custom().setSSLSocketFactory(sslsf).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return HttpClients.createDefault();
 	}
 }
