@@ -26,6 +26,8 @@ import main.story.po.Page;
 import main.story.po.Story;
 import main.story.po.Theme;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -49,7 +51,7 @@ import com.jfinal.core.JFinal;
 
 public class StoryService {
 	private final static String URL_LATEST = "https://news-at.zhihu.com/api/4/news/latest";
-	private final static String URL_BEFORE = "https://news.at.zhihu.com/api/4/news/before/";
+	private final static String URL_BEFORE = "https://news-at.zhihu.com/api/4/news/before/";
 	private final static String URL_NEWS = "https://news-at.zhihu.com/api/4/news/";
 	private final static String URL_THEMES = "https://news-at.zhihu.com/api/4/themes";
 	private final static String URL_THEME = "https://news-at.zhihu.com/api/4/theme/";
@@ -57,6 +59,7 @@ public class StoryService {
 	private final static String WEBROOT = JFinal.me().getServletContext().getRealPath("/");
 	private final Date birthday = DateUtils.getDate(2013, 4, 19);// 知乎日报的生日20130519
 	private final int eachPage = 3;
+	private Log log = LogFactory.getLog(StoryService.class);
 
 	public Body getIndex(int currentPage) throws ParseException, IOException {
 		Date today = DateUtils.parse(DateUtils.format(new Date()));
@@ -115,24 +118,28 @@ public class StoryService {
 
 	private List<Story> getStories(String jsonStr) throws IOException, JSONException, ParseException {
 		List<Story> stories = new ArrayList<Story>();
-		JSONObject jsonobj = new JSONObject(jsonStr);
-		if (jsonobj.length() == 0) return stories;
-		Date date = DateUtils.parse(jsonobj.getString("date"));
-		JSONArray storyArr = jsonobj.getJSONArray("stories");
-		Story story = null;
-		for (int i = 0; i < storyArr.length(); i++) {
-			jsonobj = storyArr.getJSONObject(i);
-			story = new Story();
-			story.setId(jsonobj.getInt("id"));
-			story.setType(jsonobj.getInt("type"));
-			story.setGa_prefix(jsonobj.getString("ga_prefix"));
-			story.setMultipic(jsonobj.isNull("multipic") ? false : jsonobj.getBoolean("multipic"));
-			story.setTitle(jsonobj.getString("title") + (story.isMultipic() ? "（多图）" : ""));
-			story.setPath("pic/" + DateUtils.format(date));
-			if (story.getType() != 0 && !jsonobj.isNull("images")) {
-				story.setImage(getImgLocalUrl(story.getPath(), story.getId(), jsonobj.getJSONArray("images").get(0).toString()));
+		try {
+			JSONObject jsonobj = new JSONObject(jsonStr);
+			if (jsonobj.length() == 0) return stories;
+			Date date = DateUtils.parse(jsonobj.getString("date"));
+			JSONArray storyArr = jsonobj.getJSONArray("stories");
+			Story story = null;
+			for (int i = 0; i < storyArr.length(); i++) {
+				jsonobj = storyArr.getJSONObject(i);
+				story = new Story();
+				story.setId(jsonobj.getInt("id"));
+				story.setType(jsonobj.getInt("type"));
+				story.setGa_prefix(jsonobj.getString("ga_prefix"));
+				story.setMultipic(jsonobj.isNull("multipic") ? false : jsonobj.getBoolean("multipic"));
+				story.setTitle(jsonobj.getString("title") + (story.isMultipic() ? "（多图）" : ""));
+				story.setPath("pic/" + DateUtils.format(date));
+				if (story.getType() != 0 && !jsonobj.isNull("images")) {
+					story.setImage(getImgLocalUrl(story.getPath(), story.getId(), jsonobj.getJSONArray("images").get(0).toString()));
+				}
+				stories.add(story);
 			}
-			stories.add(story);
+		} catch (Exception e) {
+			log.error("jsonStr_" + jsonStr);
 		}
 		return stories;
 	}
