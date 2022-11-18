@@ -32,6 +32,6 @@
 [Bootstrap url]: <http://www.bootcss.com/>
 [ZhihuDaily url]: <http://zhihudaily.me/>
 [zhihu url]: <https://www.zhihu.com/>
-[exe url]: <https://github.com/JuanWoo/zhihuDaily/blob/master/exe/ZhihuDaily-release.zip/>
-[jdk url]: <https://www.oracle.com/cn/java/technologies/javase/javase8-archive-downloads.html/>
+[exe url]: <https://github.com/JuanWoo/zhihuDaily/blob/master/exe/ZhihuDaily-release.zip>
+[jdk url]: <https://www.oracle.com/cn/java/technologies/javase/javase8-archive-downloads.html>
 [local url]: <http://localhost/>
