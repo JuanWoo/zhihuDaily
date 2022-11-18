@@ -2,11 +2,18 @@
 =================
 本地化运行
 -----------------
-1. [点我下载][jdk url]JAVA运行环境，如已有JAVA 8或以上环境可跳过此步
+1. [点我下载][jdk url]JAVA运行环境并安装。如已有JAVA 8或以上环境可跳过此步
 2. [点我下载][exe url]已经打包好的zip包
 3. 解压到任意目录
 4. 运行 ZhihuDaily\start.bat
 5. 访问 [localhost][local url] 即可
+
+自主编译
+-----------------
+1. 配置好Maven、JAVA环境变量
+2. 按需修改代码
+3. 在项目根目录执行cmd命令：mvn clean package
+4. 项目根目录\target\ZhihuDaily-release.zip 即修改后的程序
 
 声明
 -----------------
