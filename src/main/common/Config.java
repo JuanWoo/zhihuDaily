@@ -8,6 +8,8 @@ import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
 import com.jfinal.ext.handler.ContextPathHandler;
+import com.jfinal.server.undertow.UndertowServer;
+
 
 /**
  * @desc
@@ -31,4 +33,8 @@ public class Config extends JFinalConfig {
 	public void configHandler(Handlers me) {
 		me.add(new ContextPathHandler("base"));
 	}
+
+    public static void main(String[] args) {
+        UndertowServer.start(Config.class, 80, true);
+    }
 }

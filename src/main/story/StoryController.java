@@ -4,8 +4,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.ArrayList;
 import org.json.JSONException;
+
+import main.common.StoryException;
 import main.story.po.Body;
+import main.story.po.OneDayNews;
+import main.story.po.Page;
 import main.story.po.Theme;
 import com.jfinal.core.Controller;
 
@@ -22,8 +27,14 @@ public class StoryController extends Controller {
 	public void index() throws JSONException, IOException, ParseException {
 		String spage = getPara();
 		int currentPage = (null != spage && !"".equals(spage)) ? Integer.valueOf(spage) : 1;
-		Body body = service.getIndex(currentPage);
-		renderBody(body);
+		try {
+		    Body body = service.getIndex(currentPage);
+		    renderBody(body);
+        } catch (StoryException e) {
+            redirect(e.getMessage());
+        } catch (Exception e) {
+            renderEmpty();
+        }
 	}
 
 	public void image() throws MalformedURLException, IOException, ParseException {
@@ -47,8 +58,12 @@ public class StoryController extends Controller {
 
 	public void oneDayNews() throws JSONException, IOException, ParseException {
 		String sDate = getPara();
-		Body body = service.getOneDayNews(sDate);
-		renderBody(body);
+		try {
+		    Body body = service.getOneDayNews(sDate);
+		    renderBody(body);
+		} catch (StoryException e) {
+            redirect(e.getMessage());
+        }
 	}
 
 	private void renderBody(Body body) {
@@ -57,4 +72,11 @@ public class StoryController extends Controller {
 		setAttr("queryDate", body.getQueryDate());
 		render("body.html");
 	}
+	
+	private void renderEmpty() {
+        setAttr("news", new ArrayList<OneDayNews>());
+        setAttr("pages", new ArrayList<Page>());
+        setAttr("queryDate", "");
+        render("body.html");
+    }
 }

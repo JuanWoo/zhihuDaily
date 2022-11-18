@@ -2,6 +2,18 @@
 
 <div class="container-inner">
 	<br>
+	<#if (news?size == 0)>
+		<div>
+			<span>本网站服务器托管在香港，由于知乎日报api限制了非大陆IP访问，已无法抓取数据。<br/></span>
+			<span>因本域名无法备案，暂时不考虑服务器转到大陆托管。<br/></span>
+			<span>可能会考虑转成适合本地部署运行的项目，如广大网友需要，可知乎私信联系。<br/><br/></span>
+			<span>碎碎念：<br/></span>
+			<ul>
+				<li>猜测被屏蔽访问跟某会议有关，墙控严了。可能会议后会解封，若解封，本网站会自动更新数据。</li>
+				<li>找到一个国内其他作者的网站，可以临时替代一下 <a href="https://kanzhihu.pro/"><b>看知乎</b></a> </li>
+			</ul>
+		</div>
+	</#if>
 	<#list news as news>
 	<div class="panel panel-primary">
 		<div class="panel-heading">

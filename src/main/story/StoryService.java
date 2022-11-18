@@ -20,6 +20,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 
 import main.common.DateUtils;
+import main.common.StoryException;
 import main.story.po.Body;
 import main.story.po.OneDayNews;
 import main.story.po.Page;
@@ -59,14 +60,15 @@ public class StoryService {
 	private final static String WEBROOT = JFinal.me().getServletContext().getRealPath("/");
 	private final Date birthday = DateUtils.getDate(2013, 4, 19);// 知乎日报的生日20130519
 	private final int eachPage = 3;
-	private Log log = LogFactory.getLog(StoryService.class);
+    private Log log = LogFactory.getLog(StoryService.class);
 
-	public Body getIndex(int currentPage) throws ParseException, IOException {
+	public Body getIndex(int currentPage) throws ParseException, IOException, StoryException {
 		Date today = DateUtils.parse(DateUtils.format(new Date()));
 		int pageNum = (int) ((today.getTime() - birthday.getTime()) / (24 * 60 * 60 * 1000) / eachPage + 1);
 		currentPage = Math.min(currentPage, pageNum);
 		String todayHead = null;
 		List<OneDayNews> newsList = new ArrayList<OneDayNews>();
+
 		if (currentPage == 1) {
 			OneDayNews todayNews = getTodayNews(today);
 			todayHead = todayNews.getHead();
@@ -98,8 +100,9 @@ public class StoryService {
 		return pages;
 	}
 
-	private OneDayNews getTodayNews(Date today) throws IOException, JSONException, ParseException {
+	private OneDayNews getTodayNews(Date today) throws IOException, JSONException, ParseException, StoryException {
 		OneDayNews oneDay = new OneDayNews();
+
 		String jsonToday = getJson(URL_LATEST);
 		List<Story> storiesToday = getStories(jsonToday);
 		oneDay.setHead(DateUtils.format(DateUtils.parse(new JSONObject(jsonToday).getString("date")), DateUtils.FORMAT_YYYY_MM_DD_EEEE));
@@ -107,7 +110,7 @@ public class StoryService {
 		return oneDay;
 	}
 
-	private OneDayNews getBeforeNews(Date d) throws IOException, JSONException, ParseException {
+	private OneDayNews getBeforeNews(Date d) throws IOException, JSONException, ParseException, StoryException {
 		OneDayNews oneDay = new OneDayNews();
 		String jsonYesterday = getJson(URL_BEFORE + DateUtils.format(d));
 		List<Story> storiesYesterday = getStories(jsonYesterday);
@@ -116,7 +119,8 @@ public class StoryService {
 		return oneDay;
 	}
 
-	private List<Story> getStories(String jsonStr) throws IOException, JSONException, ParseException {
+	private List<Story> getStories(String jsonStr) throws IOException, JSONException, ParseException, StoryException {
+	    checkError(jsonStr);
 		List<Story> stories = new ArrayList<Story>();
 		try {
 			JSONObject jsonobj = new JSONObject(jsonStr);
@@ -144,7 +148,7 @@ public class StoryService {
 		return stories;
 	}
 
-	public Body getOneDayNews(String sDate) throws ParseException, JSONException, IOException {
+	public Body getOneDayNews(String sDate) throws ParseException, JSONException, IOException, StoryException {
 		Date d = DateUtils.parse(sDate);
 		OneDayNews oneDay = getBeforeNews(DateUtils.addDay(d, 1));
 		List<OneDayNews> newsList = new ArrayList<OneDayNews>();
@@ -187,7 +191,20 @@ public class StoryService {
 		return body;
 	}
 
-	private List<Story> getThemeStories(JSONObject jsonobj, int themeId) throws IOException, JSONException, ParseException {
+    private void checkError(String jsonStr) throws StoryException {
+        JSONObject jsonobj = new JSONObject(jsonStr);
+        if (!jsonobj.has("error")) {
+            return;
+        }
+        JSONObject error = jsonobj.getJSONObject("error");
+        int code = error.getInt("code");
+        String redirect = error.getString("redirect");
+        if (StoryException.ERROR_CODE_UNHUMAN == code) {
+            throw new StoryException(redirect);
+        }
+    }
+
+    private List<Story> getThemeStories(JSONObject jsonobj, int themeId) throws IOException, JSONException, ParseException {
 		List<Story> stories = new ArrayList<Story>();
 		if (jsonobj.length() == 0) return stories;
 		JSONArray storyArr = jsonobj.getJSONArray("stories");
@@ -226,7 +243,9 @@ public class StoryService {
 		if (!filePath.exists()) filePath.mkdirs();
 		String file = filePath.getPath() + "/" + storyId + ".jpg";
 		if (new File(file).exists()) return file.substring(WEBROOT.length() + 1);
+
 		downloadImg(imgageUrl, file);
+
 		return file.substring(WEBROOT.length());
 	}
 
