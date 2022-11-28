@@ -18,7 +18,7 @@ rem -------------------------------------------------------------------------
 setlocal & pushd
 
 rem 启动入口类,该脚本文件用于别的项目时要改这里
-set MAIN_CLASS=main.common.DemoConfig
+set MAIN_CLASS=main.common.Config
 
 rem Java 命令行参数,根据需要开启下面的配置,改成自己需要的,注意等号前后不能有空格
 rem set "JAVA_OPTS=-Xms256m -Xmx1024m -Dundertow.port=80 -Dundertow.host=0.0.0.0"
