@@ -5,7 +5,7 @@
 1. [点我下载][jdk url]JAVA运行环境并安装。如已有JAVA 8或以上环境可跳过此步
 2. [点我下载][exe url]已经打包好的zip包
 3. 解压到任意目录，得到ZhihuDaily文件夹
-4. windows下双击运行 ZhihuDaily\start.bat； linux下在解压后文件夹根目录执行命令 ./jfinal.sh start
+4. windows系统双击运行 ZhihuDaily\start.bat； linux系统，在ZhihuDaily目录执行命令 ./jfinal.sh start
 5. 访问 [localhost][local url] 即可
 
 自主编译
